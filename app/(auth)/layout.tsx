@@ -1,8 +1,8 @@
 
-import React from "react";
+import React, { ReactNode } from "react";
 import { MenuLink } from "../_component/MenuLink";
 
-const AuthLayout = ({ children }: { children: HTMLElement }) => {
+const AuthLayout = ({ children }: { children: ReactNode }) => {
   const menus = [
     { name: "Register", path: "/register" },
     { name: "Login", path: "/login" },
