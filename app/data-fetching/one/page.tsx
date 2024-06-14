@@ -1,7 +1,7 @@
 import React from "react";
 
 const getData = async () => {
-  const res = await fetch("https://jsonplaceholder.typicode.com/todos");
+  const res = await fetch(`https://next-june.vercel.app/api/categories`);
 
   if (!res.ok) {
     // This will activate the closest `error.js` Error Boundary
@@ -12,12 +12,11 @@ const getData = async () => {
 
 const One = async () => {
   const data: {
-    userId: number;
     id: number;
     title: string;
-    completed: boolean;
   }[] = await getData();
-  console.log(data);
+
+  
 
   return (
     <>
@@ -26,8 +25,8 @@ const One = async () => {
         {data.map((item) => (
           <li className=" list-disc" key={item.id}>
             {item.title}
-            <br/>
-            <br/>
+            <br />
+            <br />
           </li>
         ))}
       </ul>
