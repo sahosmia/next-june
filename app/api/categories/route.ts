@@ -2,6 +2,7 @@ import { categories } from "@/app/data/categories";
 import { getNextId } from "@/app/types";
 import { NextRequest } from "next/server";
 
+export const dynamic = "force-dynamic";
 export const GET = (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
   const title = searchParams.get("title");
@@ -9,18 +10,14 @@ export const GET = (request: NextRequest) => {
     const data = categories.filter((item) =>
       item.title.toLowerCase().includes(title.toLowerCase())
     );
-    return new Response(JSON.stringify(data));
+    return Response.json(data);
   }
-  return new Response(JSON.stringify(categories));
+  return Response.json({ data: categories, status: 200 });
 
-  //  try {
-  //    return res.status(200).json(getSuccessResponse(categories));
-  //  } catch (error) {
-  //    return res.status(500).json(errorResponse(error));
-  //  }
 };
 
-export const POST = async (request: Request) => {
+
+export const POST = async (request: NextRequest) => {
   const res = await request.json(); // get request veriable
   const id = getNextId(categories); // random id
   const newItem: { id: number; title: string } = { id: id, title: res.title };
@@ -31,6 +28,6 @@ export const POST = async (request: Request) => {
     headers: {
       "Content-Type": "application/json",
     },
-    status: 201, // 201 is created
+    status: 201, 
   });
 };

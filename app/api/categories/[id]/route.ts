@@ -1,6 +1,12 @@
 import { categories } from "@/app/data/categories";
+import { NextRequest } from "next/server";
 
-export const GET = async (_request, { params }) => {
+//show method
+export const GET = async (
+  _request: NextRequest,
+  { params }: { params: { id: string } }
+) => {
+  //context = {params : {id:1}}
   const id = params.id;
   const categoryCheck = categories.find(
     (category) => category.id === parseInt(id)
@@ -20,7 +26,12 @@ export const GET = async (_request, { params }) => {
   });
 };
 
-export const PATCH = async (request, { params }) => {
+
+// update method
+export const PATCH = async (
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) => {
   const res = await request.json(); // get request veriable
   const id = params.id;
   const categoryCheck = categories.find(
@@ -44,7 +55,8 @@ export const PATCH = async (request, { params }) => {
   });
 };
 
-export const DELETE = async (request, { params }) => {
+// delete method
+export const DELETE = async (request:NextRequest, { params }:{params:{id:string}}) => {
   const id = params.id;
   const categoryCheck = categories.find(
     (category) => category.id === parseInt(id)
