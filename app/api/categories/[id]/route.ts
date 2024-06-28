@@ -1,7 +1,8 @@
 import { categories } from "@/app/data/categories";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import * as yup from "yup";
 
-//show method
+//show method =================================================
 export const GET = async (
   _request: NextRequest,
   { params }: { params: { id: string } }
@@ -18,45 +19,64 @@ export const GET = async (
     );
     return Response.json(categories[categoryIndex]);
   }
-  return new Response(JSON.stringify({ message: "Not found this item" }), {
+  return new Response(JSON.stringify({ error: "Not found this item" }), {
+    status: 404,
     headers: {
       "Content-Type": "application/json",
     },
-    status: 404,
   });
 };
 
+// Validation =================================================
+const itemSchema = yup.object().shape({
+  title: yup.string().trim().required("Title is required"),
+});
 
-// update method
+// update method =============================================
 export const PATCH = async (
   request: NextRequest,
   { params }: { params: { id: string } }
 ) => {
-  const res = await request.json(); // get request veriable
-  const id = params.id;
-  const categoryCheck = categories.find(
-    (category) => category.id === parseInt(id)
-  );
+  try {
+    const res = await request.json();
+    const id = params.id;
+    await itemSchema.validate(res);
 
-  if (categoryCheck) {
-    const categoryIndex = categories.findIndex(
+    const categoryCheck = categories.find(
       (category) => category.id === parseInt(id)
     );
 
-    categories[categoryIndex].title = res.title;
+    if (categoryCheck) {
+      const categoryIndex = categories.findIndex(
+        (category) => category.id === parseInt(id)
+      );
 
-    return Response.json(categories[categoryIndex]);
+      categories[categoryIndex].title = res.title;
+
+      return Response.json(categories[categoryIndex]);
+    }
+    return new Response(JSON.stringify({ error: "Not found this item" }), {
+      status: 404,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (error) {
+    if (error instanceof yup.ValidationError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
-  return new Response(JSON.stringify({ message: "Not found this item" }), {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    status: 404,
-  });
 };
 
-// delete method
-export const DELETE = async (request:NextRequest, { params }:{params:{id:string}}) => {
+// delete method  =============================================
+export const DELETE = async (
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) => {
   const id = params.id;
   const categoryCheck = categories.find(
     (category) => category.id === parseInt(id)
@@ -72,10 +92,10 @@ export const DELETE = async (request:NextRequest, { params }:{params:{id:string}
 
     return Response.json(deletedItem);
   }
-  return new Response(JSON.stringify({ message: "Not found this item" }), {
+  return new Response(JSON.stringify({ error: "Not found this item" }), {
+    status: 404,
     headers: {
       "Content-Type": "application/json",
     },
-    status: 404,
   });
 };

@@ -1,9 +1,11 @@
 import { categories } from "@/app/data/categories";
 import { getNextId } from "@/app/types";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import * as yup from "yup";
 
 export const dynamic = "force-dynamic";
 
+// Get All Data ===================================================
 export const GET = (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
   const search = searchParams.get("search");
@@ -62,17 +64,35 @@ export const GET = (request: NextRequest) => {
   );
 };
 
+// validation =====================================================
+const itemSchema = yup.object().shape({
+  title: yup.string().trim().required("Title is required"),
+});
+
+// Create Request =================================================
 export const POST = async (request: NextRequest) => {
-  const res = await request.json(); // get request veriable
-  const id = getNextId(categories); // random id
-  const newItem: { id: number; title: string } = { id: id, title: res.title };
+  try {
+    const res = await request.json(); // get request veriable
+    await itemSchema.validate(res);
+    const id = getNextId(categories); // random id
 
-  categories.push(newItem);
+    const newItem: { id: number; title: string } = { id: id, title: res.title };
 
-  return new Response(JSON.stringify(newItem), {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    status: 201,
-  });
+    categories.push(newItem);
+
+    return new Response(JSON.stringify(newItem), {
+      status: 201,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (error) {
+    if (error instanceof yup.ValidationError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 };
