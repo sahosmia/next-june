@@ -25,7 +25,7 @@ export const GET = async (
       "Content-Type": "application/json",
     },
   });
-}; 
+};
 
 // Validation =================================================
 const itemSchema = yup.object().shape({
